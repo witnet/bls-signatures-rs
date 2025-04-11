@@ -1,6 +1,6 @@
 [package]
 name = "witnet-bls-signatures"
-version = "0.1.1"
+version = "0.1.2"
 description = "Open source implementation of Bonneh-Lynn-Shacham (BLS) signatures written in Rust"
 keywords = ["bls", "Bonneh-Lynn-Shacham", "bn256"]
 categories = ["algorithms", "cryptography"]
