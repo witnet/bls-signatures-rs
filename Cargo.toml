@@ -1,6 +1,6 @@
 [package]
 name = "bls-signatures-rs"
-version = "0.1.0"
+version = "0.1.1"
 description = "Open source implementation of Bonneh-Lynn-Shacham (BLS) signatures written in Rust"
 keywords = ["bls", "Bonneh-Lynn-Shacham", "bn256"]
 categories = ["algorithms", "cryptography"]
