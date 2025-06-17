@@ -1,26 +1,26 @@
 //! Errors returned by the bn256 library
 use bn::{CurveError, FieldError, GroupError};
-use failure::Fail;
+use thiserror::Error;
 
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 pub enum Error {
-    #[fail(display = "Failed to find a valid point while converting hash to point")]
+    #[error("Failed to find a valid point while converting hash to point")]
     HashToPointError,
-    #[fail(display = "Failed to get data from an index out of bounds")]
+    #[error("Failed to get data from an index out of bounds")]
     IndexOutOfBounds,
-    #[fail(display = "Failed to create group or field due to invalid input encoding")]
+    #[error("Failed to create group or field due to invalid input encoding")]
     InvalidEncoding,
-    #[fail(display = "Failed to map point to a curve")]
+    #[error("Failed to map point to a curve")]
     InvalidGroupPoint,
-    #[fail(display = "Failed to create group or field due to invalid input length")]
+    #[error("Failed to create group or field due to invalid input length")]
     InvalidLength,
-    #[fail(display = "Failed to create a field element")]
+    #[error("Failed to create a field element")]
     NotMemberError,
-    #[fail(display = "Failed to convert to affine coordinates")]
+    #[error("Failed to convert to affine coordinates")]
     ToAffineConversion,
-    #[fail(display = "Point was already in affine coordinates (division-by-zero)")]
+    #[error("Point was already in affine coordinates (division-by-zero)")]
     PointInJacobian,
-    #[fail(display = "BLS verification failed")]
+    #[error("BLS verification failed")]
     VerificationFailed,
 }
 

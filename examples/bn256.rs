@@ -1,5 +1,4 @@
-use bls_signatures_rs::bn256::Bn256;
-use bls_signatures_rs::MultiSignature;
+use witnet_bls_signatures::{MultiSignature, bn256::Bn256};
 
 fn main() {
     // Inputs: Secret Key, Public Key (derived) & Message

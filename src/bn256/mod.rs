@@ -31,7 +31,7 @@ const LAST_MULTIPLE_OF_FQ_MODULUS_LOWER_THAN_2_256: arith::U256 = arith::U256([
     0xf1f5_883e_65f8_20d0_9991_5c90_8786_b9d3,
 ]);
 
-use bn::{arith, pairing_batch, AffineG1, AffineG2, Fq, Fq2, Fr, Group, Gt, G1, G2};
+use bn::{AffineG1, AffineG2, Fq, Fq2, Fr, G1, G2, Group, Gt, arith, pairing_batch};
 use byteorder::{BigEndian, ByteOrder};
 use digest::Digest;
 
@@ -100,7 +100,7 @@ impl Bn256 {
         // Add counter suffix
         // This message should be: ciphersuite || 0x01 || message || ctr
         // For the moment we work with message || ctr until a tag is decided
-        let mut v = [&message[..], &[0x00]].concat();
+        let mut v = [message, &[0x00]].concat();
         let position = v.len() - 1;
 
         // `Hash(data||ctr)`
@@ -173,7 +173,7 @@ impl Bn256 {
     /// * The SHA256 digest as a slice.
     fn calculate_sha256(&self, bytes: &[u8]) -> [u8; 32] {
         let mut hasher = sha2::Sha256::new();
-        hasher.input(&bytes);
+        hasher.input(bytes);
         let mut hash = [0; 32];
         hash.copy_from_slice(&hasher.result());
 
@@ -191,7 +191,7 @@ impl PrivateKey {
     /// Function to derive a private key.
     pub fn new(rng: &[u8]) -> Result<PrivateKey, Error> {
         // This function throws an error if the slice does not have a proper length.
-        let private_key = Fr::from_slice(&rng)?;
+        let private_key = Fr::from_slice(rng)?;
 
         Ok(PrivateKey(private_key))
     }
@@ -224,7 +224,7 @@ impl PublicKey {
 
     /// Function to create a `PublicKey` from bytes representing a G2 point in compressed format.
     pub fn from_compressed(bytes: &[u8]) -> Result<Self, Error> {
-        let uncompressed = G2::from_compressed(&bytes)?;
+        let uncompressed = G2::from_compressed(bytes)?;
 
         Ok(PublicKey(uncompressed))
     }
@@ -336,10 +336,10 @@ impl MultiSignature<&[u8], &[u8], &[u8]> for Bn256 {
     /// * If successful, a vector of bytes with the signature
     fn sign(&mut self, secret_key: &[u8], message: &[u8]) -> Result<Vec<u8>, Self::Error> {
         // 1. Hash_to_try_and_increment --> H(m) as point in G1 (only if it exists)
-        let hash_point = self.hash_to_try_and_increment(&message)?;
+        let hash_point = self.hash_to_try_and_increment(message)?;
 
         // 2. Multiply hash_point times secret_key --> Signature in G1
-        let sk = Fr::from_slice(&secret_key)?;
+        let sk = Fr::from_slice(secret_key)?;
         let signature = hash_point * sk;
 
         // 3. Return signature as compressed bytes
@@ -365,11 +365,11 @@ impl MultiSignature<&[u8], &[u8], &[u8]> for Bn256 {
     ) -> Result<(), Self::Error> {
         let mut vals = Vec::new();
         // First pairing input: e(H(m), PubKey)
-        let hash_point = self.hash_to_try_and_increment(&message)?;
-        let public_key_point = G2::from_compressed(&public_key)?;
+        let hash_point = self.hash_to_try_and_increment(message)?;
+        let public_key_point = G2::from_compressed(public_key)?;
         vals.push((hash_point, public_key_point));
         // Second pairing input:  e(-Signature,G2::one())
-        let signature_point = G1::from_compressed(&signature)?;
+        let signature_point = G1::from_compressed(signature)?;
         vals.push((signature_point, -G2::one()));
         // Pairing batch with one negated point
         let mul = pairing_batch(&vals);
@@ -392,7 +392,7 @@ impl MultiSignature<&[u8], &[u8], &[u8]> for Bn256 {
     fn aggregate_public_keys(&mut self, public_keys: &[&[u8]]) -> Result<Vec<u8>, Self::Error> {
         let agg_public_key: Result<G2, Error> =
             public_keys.iter().try_fold(G2::zero(), |acc, &compressed| {
-                let public_key = PublicKey::from_compressed(&compressed)?;
+                let public_key = PublicKey::from_compressed(compressed)?;
 
                 Ok(acc + public_key.0)
             });
@@ -412,7 +412,7 @@ impl MultiSignature<&[u8], &[u8], &[u8]> for Bn256 {
     fn aggregate_signatures(&mut self, signatures: &[&[u8]]) -> Result<Vec<u8>, Self::Error> {
         let agg_signatures: Result<G1, Error> =
             signatures.iter().try_fold(G1::zero(), |acc, &compressed| {
-                let signature = G1::from_compressed(&compressed)?;
+                let signature = G1::from_compressed(compressed)?;
 
                 Ok(acc + signature)
             });
